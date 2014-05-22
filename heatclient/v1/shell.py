@@ -751,3 +751,16 @@ def do_build_info(hc, args):
         'engine': utils.json_formatter,
     }
     utils.print_dict(result, formatters=formatters)
+
+
+def do_discovery_init(hc, args):
+    '''Saves init state for discovery process.'''
+    hc.discovery.init()
+
+@utils.arg('-s', '--create-server-snapshot', default=False, action="store_true",
+           help='Creates snapshots for existing servers.')
+def do_discovery_dump(hc, args):
+    '''Generate template with resources created after saving init state.'''
+    template = hc.discovery.dump(**{
+        'create_server_snapshot': args.create_server_snapshot})
+    print template
