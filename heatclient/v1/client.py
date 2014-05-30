@@ -16,6 +16,7 @@
 from heatclient.common import http
 from heatclient.v1 import actions
 from heatclient.v1 import build_info
+from heatclient.v1 import template_catalogue
 from heatclient.v1 import events
 from heatclient.v1 import resource_types
 from heatclient.v1 import resources
@@ -49,3 +50,5 @@ class Client(object):
                 self.http_client)
         self.software_configs = software_configs.SoftwareConfigManager(
             self.http_client)
+        self.template_catalogue = \
+            template_catalogue.TemplateCatalogueManager(self.http_client)

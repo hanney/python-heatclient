@@ -751,3 +751,70 @@ def do_build_info(hc, args):
         'engine': utils.json_formatter,
     }
     utils.print_dict(result, formatters=formatters)
+
+
+def do_template_catalogue_list(hc, args=None):
+    '''List template catalogue entries.'''
+    try:
+        tc = hc.template_catalogue.list()
+    except exc.HTTPNotFound as ex:
+        raise exc.CommandError(str(ex))
+    else:
+        fields = ['id', 'name', 'public', 'creation_at']
+        utils.print_list(tc, fields)
+
+
+@utils.arg('id', metavar='<ID>',
+           help='ID of template catalogue entry to show.')
+def do_template_catalogue_show(hc, args):
+    '''Show template catalogue entry.'''
+    fields = {'template_catalogue_id': args.id}
+    try:
+        tc = hc.template_catalogue.get(**fields)
+    except exc.HTTPNotFound as ex:
+        raise exc.CommandError(str(ex))
+    else:
+        utils.print_dict(tc.to_dict())
+
+
+@utils.arg('-f', '--template-file', metavar='<FILE>',
+           help='Path to the template.')
+@utils.arg('-u', '--template-url', metavar='<URL>',
+           help='URL of template.')
+@utils.arg('-o', '--template-object', metavar='<URL>',
+           help='URL to retrieve template object (e.g. from swift).')
+@utils.arg('-p', '--public', default=False, action="store_true",
+           help='Is template public?')
+@utils.arg('-i', '--preview', metavar='<URL>',
+           help='URL to retrieve template preview.')
+@utils.arg('name', metavar='<TEMPLATE_NAME>',
+           help='Name of the template to add.')
+def do_template_catalogue_add(hc, args):
+    '''Add template catalogue entry.'''
+    tpl_files, template = template_utils.get_template_contents(
+        args.template_file,
+        args.template_url,
+        args.template_object,
+        hc.http_client.raw_request)
+    fields = {
+        'name': args.name,
+        'public': args.public,
+        'preview': args.preview,
+        'template': template,
+    }
+
+    hc.template_catalogue.create(**fields)
+    do_template_catalogue_list(hc)
+
+
+@utils.arg('id', metavar='<ID>',
+           help='ID of template catalogue entry to delete.')
+def do_template_catalogue_delete(hc, args):
+    '''Delete template catalogue entry.'''
+    fields = {'template_catalogue_id': args.id}
+    try:
+        hc.template_catalogue.delete(**fields)
+    except exc.HTTPNotFound as ex:
+        raise exc.CommandError(str(ex))
+
+    do_template_catalogue_list(hc)
