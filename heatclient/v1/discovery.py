@@ -20,8 +20,11 @@ class Discovery(base.Resource):
     def __repr__(self):
         return "<Discovery %s>" % self._info
 
-    def init(self):
-        return self.manager.init()
+    def list(self):
+        return self.manager.list()
+
+    def exclude(self, **fields):
+        return self.manager.exclude(**fields)
 
     def dump(self, **fields):
         return self.manager.dump(**fields)
@@ -30,8 +33,16 @@ class Discovery(base.Resource):
 class DiscoveryManager(base.BaseManager):
     resource_class = Discovery
 
-    def init(self):
-        resp, body = self.client.json_request('GET', '/discovery/init')
+    def list(self):
+        resp, body = self.client.json_request('GET', '/discovery/list')
+        rsrcs = []
+        for r in body['resources']:
+            rsrcs.append(base.Resource(None, r))
+        return rsrcs
+
+    def exclude(self, **kwargs):
+        resp, body = self.client.json_request('POST', '/discovery/exclude',
+                                              data=kwargs)
         return body
 
     def dump(self, **kwargs):

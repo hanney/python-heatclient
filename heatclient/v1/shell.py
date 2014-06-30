@@ -753,9 +753,21 @@ def do_build_info(hc, args):
     utils.print_dict(result, formatters=formatters)
 
 
-def do_discovery_init(hc, args):
-    '''Saves init state for discovery process.'''
-    hc.discovery.init()
+def do_discovery_list(hc, args):
+    '''List discovered resources.'''
+    resources = hc.discovery.list()
+    fields = ['id', 'type', 'info', 'excluded']
+    utils.print_list(resources, fields, sortby_index=0)
+
+@utils.arg('-r', '--resources', metavar='<ID1;ID2...>',
+           help='List of resource IDs to exclude.'
+           'This can be specified multiple times, or once with IDs '
+           'separated by a semicolon.',
+           action='append')
+def do_discovery_exclude(hc, args):
+    '''Excludes given resources from being dumped to the template.'''
+    hc.discovery.exclude(**{
+        'resources': utils.format_resource_ids(args.resources)})
 
 @utils.arg('-s', '--create-server-snapshot', default=False, action="store_true",
            help='Creates snapshots for existing servers.')

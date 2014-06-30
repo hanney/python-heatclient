@@ -133,6 +133,22 @@ def format_parameters(params):
     return parameters
 
 
+def format_resource_ids(ids):
+    '''Reformat ids into list of format expected by the API.'''
+
+    if not ids:
+        return []
+
+    # expect multiple invocations of --parameters but fall back
+    # to ; delimited if only one --parameters is specified
+    if len(ids) == 1:
+        ids = ids[0].split(';')
+    new = {}
+    for id in ids:
+        new[id] = True
+    return new.keys()
+
+
 def format_output(output, format='yaml'):
     """Format the supplied dict as specified."""
     output_format = format.lower()
